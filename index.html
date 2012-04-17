@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html>
+
+  <head>
+    <meta charset='utf-8' />
+    <meta http-equiv="X-UA-Compatible" content="chrome=1" />
+    <meta name="description" content="Zappajs : Following-up on mauricemach/zappa" />
+
+    <link rel="stylesheet" type="text/css" media="screen" href="stylesheets/stylesheet.css">
+
+    <title>Zappajs</title>
+  </head>
+
+  <body>
+
+    <!-- HEADER -->
+    <div id="header_wrap" class="outer">
+        <header class="inner">
+          <a id="forkme_banner" href="https://github.com/zappajs/zappajs">Fork Me on GitHub</a>
+
+          <h1 id="project_title">Zappajs</h1>
+          <h2 id="project_tagline">Following-up on mauricemach/zappa</h2>
+
+          <section id="downloads">
+            <a class="zip_download_link" href="https://github.com/zappajs/zappajs/zipball/master">Download this project as a .zip file</a>
+            <a class="tar_download_link" href="https://github.com/zappajs/zappajs/tarball/master">Download this project as a tar.gz file</a>
+          </section>
+        </header>
+    </div>
+
+    <!-- MAIN CONTENT -->
+    <div id="main_content_wrap" class="outer">
+      <section id="main_content" class="inner">
+        <pre><code>8888888888P        d8888 8888888b.  8888888b.     d8888          @@@    @@@ 
+      d88P        d88888 888   Y88b 888   Y88b   d88888        @@@@@@@@@@@@@@
+     d88P        d88P888 888    888 888    888  d88P888       @@@@@@@@@@@@@@@@
+    d88P        d88P 888 888   d88P 888   d88P d88P 888      @@@@@@@@  @@@@@@@@
+   d88P        d88P  888 8888888P"  8888888P" d88P  888      @@@            @@@
+  d88P        d88P   888 888        888      d88P   888      @@   @@@@@@@@   @@
+ d88P        d8888888888 888        888     d8888888888           @@@@@@@@    
+d8888888888 d88P     888 888        888    d88P     888            @@@@@@     
+</code></pre>
+
+<h1>Node development for the lazy</h1>
+
+<p>If you can describe it in 495 characters, why on earth should it take 879?</p>
+
+<p>Zappa is a <a href="http://coffeescript.org">CoffeeScript</a>-optimized interface to <a href="http://expressjs.com">Express</a> and <a href="http://socket.io">Socket.IO</a> that makes this:</p>
+
+<div class="highlight">
+<pre><span class="nx">require</span><span class="nf">('zappajs') -&gt;</span>
+  <span class="nv">Gizmo = </span><span class="nx">require</span> <span class="s">'./model/gizmo'</span>
+
+  <span class="nx">@use</span> <span class="s">'bodyParser'</span><span class="p">,</span> <span class="s">'methodOverride'</span><span class="p">,</span> <span class="nx">@app</span><span class="p">.</span><span class="nx">router</span><span class="p">,</span> <span class="s">'static'</span>
+
+  <span class="nx">@configure</span>
+    <span class="nv">development: </span><span class="o">=&gt;</span> <span class="nx">@use</span> <span class="nv">errorHandler: </span><span class="p">{</span><span class="nv">dumpExceptions: </span><span class="kc">on</span><span class="p">}</span>
+    <span class="nv">production: </span><span class="o">=&gt;</span> <span class="nx">@use</span> <span class="s">'errorHandler'</span>
+
+  <span class="nx">@get</span> <span class="s">'/'</span><span class="o">:</span> <span class="o">-&gt;</span> <span class="nx">@render</span> <span class="s">'index'</span>
+
+  <span class="nx">@get</span> <span class="s">'/gizmos/:id'</span><span class="o">:</span> <span class="o">-&gt;</span>
+    <span class="nx">Gizmo</span><span class="p">.</span><span class="nx">findById</span> <span class="nx">@params</span><span class="p">.</span><span class="nx">id</span><span class="p">,</span> <span class="p">(</span><span class="nx">err</span><span class="p">,</span> <span class="nx">gizmo</span><span class="p">)</span> <span class="o">=&gt;</span>
+      <span class="nx">@render</span> <span class="nv">index: </span><span class="p">{</span><span class="nx">err</span><span class="p">,</span> <span class="nx">gizmo</span><span class="p">}</span>
+
+  <span class="nx">@</span><span class="kc">on</span> <span class="nv">connection: </span><span class="o">-&gt;</span>
+    <span class="nx">@emit</span> <span class="nv">welcome: </span><span class="p">{</span><span class="nv">time: </span><span class="k">new</span> <span class="nb">Date</span><span class="p">()}</span>
+
+  <span class="nx">@</span><span class="kc">on</span> <span class="nv">shout: </span><span class="o">-&gt;</span>
+    <span class="nx">@broadcast</span> <span class="nv">shout: </span><span class="p">{</span><span class="nx">@id</span><span class="p">,</span> <span class="nv">text: </span><span class="nx">@data</span><span class="p">.</span><span class="nx">text</span><span class="p">}</span>
+</pre>
+</div>
+
+
+<p>Equivalent to this:</p>
+
+<div class="highlight">
+<pre><span class="nv">express = </span><span class="nx">require</span> <span class="s">'express'</span>
+<span class="nv">app = </span><span class="nx">express</span><span class="p">.</span><span class="nx">createServer</span><span class="p">()</span>
+<span class="nv">io = </span><span class="nx">require</span><span class="p">(</span><span class="s">'socket.io'</span><span class="p">).</span><span class="nx">listen</span><span class="p">(</span><span class="nx">app</span><span class="p">)</span>
+
+<span class="nv">Gizmo = </span><span class="nx">require</span> <span class="s">'./model/gizmo'</span>
+
+<span class="nx">app</span><span class="p">.</span><span class="nx">use</span> <span class="nx">express</span><span class="p">.</span><span class="nx">bodyParser</span><span class="p">()</span>
+<span class="nx">app</span><span class="p">.</span><span class="nx">use</span> <span class="nx">express</span><span class="p">.</span><span class="nx">methodOverride</span><span class="p">()</span>
+<span class="nx">app</span><span class="p">.</span><span class="nx">use</span> <span class="nx">app</span><span class="p">.</span><span class="nx">router</span>
+<span class="nx">app</span><span class="p">.</span><span class="nx">use</span> <span class="nx">express</span><span class="p">.</span><span class="nx">static</span> <span class="nx">__dirname</span> <span class="o">+</span> <span class="s">'/public'</span>
+
+<span class="nx">app</span><span class="p">.</span><span class="nx">configure</span> <span class="s">'development'</span><span class="p">,</span> <span class="o">-&gt;</span>
+  <span class="nx">app</span><span class="p">.</span><span class="nx">use</span> <span class="nx">express</span><span class="p">.</span><span class="nx">errorHandler</span> <span class="nv">dumpExceptions: </span><span class="kc">on</span>
+
+<span class="nx">app</span><span class="p">.</span><span class="nx">configure</span> <span class="s">'production'</span><span class="p">,</span> <span class="o">-&gt;</span>
+  <span class="nx">app</span><span class="p">.</span><span class="nx">use</span> <span class="nx">express</span><span class="p">.</span><span class="nx">errorHandler</span><span class="p">()</span>
+
+<span class="nx">app</span><span class="p">.</span><span class="nx">get</span> <span class="s">'/'</span><span class="p">,</span> <span class="nf">(req, res) -&gt;</span> <span class="nx">res</span><span class="p">.</span><span class="nx">render</span> <span class="s">'index'</span>
+
+<span class="nx">app</span><span class="p">.</span><span class="nx">get</span> <span class="s">'/gizmos/:id'</span><span class="p">,</span> <span class="nf">(req, res) -&gt;</span>
+  <span class="nx">Gizmo</span><span class="p">.</span><span class="nx">findById</span> <span class="nx">req</span><span class="p">.</span><span class="nx">params</span><span class="p">.</span><span class="nx">id</span><span class="p">,</span> <span class="nf">(err, gizmo) -&gt;</span>
+    <span class="nx">res</span><span class="p">.</span><span class="nx">render</span> <span class="s">'index'</span><span class="p">,</span> <span class="p">{</span><span class="nx">err</span><span class="p">,</span> <span class="nx">gizmo</span><span class="p">}</span>
+
+<span class="nx">io</span><span class="p">.</span><span class="nx">sockets</span><span class="p">.</span><span class="kc">on</span> <span class="s">'connection'</span><span class="p">,</span> <span class="nf">(socket) -&gt;</span>
+  <span class="nx">socket</span><span class="p">.</span><span class="nx">emit</span> <span class="s">'welcome'</span><span class="p">,</span> <span class="nv">time: </span><span class="k">new</span> <span class="nb">Date</span><span class="p">()</span>
+
+  <span class="nx">socket</span><span class="p">.</span><span class="kc">on</span> <span class="s">'shout'</span><span class="p">,</span> <span class="nf">(data) -&gt;</span>
+    <span class="nx">socket</span><span class="p">.</span><span class="nx">broadcast</span><span class="p">.</span><span class="nx">emit</span> <span class="s">'shout'</span><span class="p">,</span>
+      <span class="nv">id: </span><span class="nx">socket</span><span class="p">.</span><span class="nx">id</span><span class="p">,</span> <span class="nv">text: </span><span class="nx">data</span><span class="p">.</span><span class="nx">text</span>
+
+<span class="nx">app</span><span class="p">.</span><span class="nx">listen</span> <span class="mi">3000</span>
+
+<span class="nx">console</span><span class="p">.</span><span class="nx">log</span> <span class="s">"Express server listening on port %d in %s mode"</span><span class="p">,</span>
+  <span class="nx">app</span><span class="p">.</span><span class="nx">address</span><span class="p">().</span><span class="nx">port</span><span class="p">,</span> <span class="nx">app</span><span class="p">.</span><span class="nx">settings</span><span class="p">.</span><span class="nx">env</span>
+</pre>
+</div>
+
+
+<p>And throws in some additional features while at it:</p>
+
+<div class="highlight">
+<pre><span class="nx">require</span><span class="nf">('zappajs') -&gt;</span>
+  <span class="nx">@enable</span> <span class="s">'default layout'</span><span class="p">,</span> <span class="s">'serve jquery'</span><span class="p">,</span>
+    <span class="s">'serve sammy'</span><span class="p">,</span> <span class="s">'minify'</span>
+
+  <span class="nx">@get</span> <span class="s">'/'</span><span class="o">:</span> <span class="o">-&gt;</span>
+    <span class="nx">@render</span> <span class="s">'index'</span>
+
+  <span class="nx">@</span><span class="kc">on</span> <span class="nv">connection: </span><span class="o">-&gt;</span>
+    <span class="nx">@emit</span> <span class="nv">welcome: </span><span class="p">{</span><span class="nv">result: </span><span class="nx">sum</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">}</span>
+
+  <span class="nx">@shared</span> <span class="s">'/shared.js'</span><span class="o">:</span> <span class="o">-&gt;</span>
+    <span class="nv">root = </span><span class="nb">window</span> <span class="o">?</span> <span class="nx">global</span>
+    <span class="nv">root.sum = </span><span class="nf">(x, y) -&gt;</span> <span class="nx">x</span> <span class="o">+</span> <span class="nx">y</span>
+
+  <span class="nx">@client</span> <span class="s">'/index.js'</span><span class="o">:</span> <span class="o">-&gt;</span>
+    <span class="nx">@connect</span><span class="p">()</span>
+
+    <span class="nx">@get</span> <span class="s">'#/route'</span><span class="o">:</span> <span class="o">-&gt;</span>
+      <span class="nx">$</span><span class="p">(</span><span class="s">'body'</span><span class="p">).</span><span class="nx">append</span> <span class="s">'client routes!'</span>
+
+    <span class="nx">@</span><span class="kc">on</span> <span class="nv">welcome: </span><span class="o">-&gt;</span>
+      <span class="nx">$</span><span class="p">(</span><span class="s">'body'</span><span class="p">).</span><span class="nx">append</span> <span class="s">"welcomed: </span><span class="si">#{</span><span class="nx">sum</span> <span class="nx">@data</span><span class="p">.</span><span class="nx">result</span><span class="p">,</span> <span class="mi">2</span><span class="si">}</span><span class="s">"</span>
+
+  <span class="nx">@view</span> <span class="nv">index: </span><span class="o">-&gt;</span>
+    <span class="vi">@title = </span><span class="s">'PicoChat!'</span>
+    <span class="vi">@scripts = </span><span class="p">[</span><span class="s">'/socket.io/socket.io'</span><span class="p">,</span> <span class="s">'/zappa/jquery'</span><span class="p">,</span>
+      <span class="s">'/zappa/sammy'</span><span class="p">,</span> <span class="s">'/zappa/zappa'</span><span class="p">,</span> <span class="s">'/shared'</span><span class="p">,</span> <span class="s">'/index'</span><span class="p">]</span>
+
+    <span class="nx">h1</span> <span class="nx">@title</span>
+</pre>
+</div>
+
+
+<h2>Learn More</h2>
+
+<ul>
+<li><p>Get the gist with the <a href="http://zappajs.org/docs/crashcourse">crash course</a></p></li>
+<li><p>Check the <a href="http://zappajs.org/docs/0.3-gumbo/reference">API reference</a></p></li>
+<li><p>See the <a href="https://github.com/shimaore/zappajs/tree/master/examples">examples</a> included with the source</p></li>
+<li><p>Read the <a href="http://zappajs.org/docs/zappa.html">annotated source</a> generated by <a href="http://jashkenas.github.com/docco/">docco</a></p></li>
+</ul><h2>Other resources</h2>
+
+<ul>
+<li><p>The source code <a href="http://github.com/shimaore/zappajs">repository</a> at github</p></li>
+<li><p>Questions, suggestions? Drop us a line on the <a href="http://groups.google.com/group/zappajs">mailing list</a></p></li>
+<li><p>Rather do it realtime? Join the IRC channel on freenode: <a>#zappajs</a></p></li>
+<li><p>Found a bug? Open an <a href="http://github.com/shimaore/zappajs/issues">issue</a> at github</p></li>
+<li><p>Check the project's history at the <a href="https://github.com/shimaore/zappajs/blob/master/CHANGELOG.md">change log</a></p></li>
+<li><p>Migrating from an earlier version? Read the announcements (<a href="http://zappajs.org/docs/0.2-peaches/announcement">0.2.x</a>/<a href="http://zappajs.org/docs/0.3-gumbo/announcement">0.3.x</a>) for an overview on changes, and follow the TL;DR migration guides (<a href="http://zappajs.org/docs/0.2-peaches/migration">0.2.x</a>/<a href="http://zappajs.org/docs/0.3-gumbo/migration">0.3.x</a>)</p></li>
+<li><p>Deploying to heroku? Check <a href="http://blog.superbigtree.com/blog/2011/08/19/hosting-zappa-0-2-x-on-heroku/">this blog post</a></p></li>
+</ul><h2>Thanks loads</h2>
+
+<p>To all people behind the excellent libs that made this little project possible, more specifically: </p>
+
+<ul>
+<li><p>Jeremy Ashkenas for CoffeeScript, the "little" language is nothing short of revolutionary to me.</p></li>
+<li><p>TJ Holowaychuk for the robust and flexible cornerstone that's Express.</p></li>
+<li><p>Guillermo Rauch for solving (as far as I'm concerned) the comet problem once and for all.</p></li>
+<li><p>Ryan Dahl for Node.js, without which nothing of this would be possible.</p></li>
+</ul><p>Also:</p>
+
+<ul>
+<li><p>Blake Mizerany for Sinatra, the framework that made me redefine simple.</p></li>
+<li><p>why the lucky stiff, for making me redefine hacking.</p></li>
+<li><p>And last but not least Frank Zappa, for the spirit of nonconformity and experimentation that inspires me to push forward. Not to mention providing the soundtrack.</p></li>
+</ul><p>"Why do you necessarily have to be wrong just because a few million people think you are?" - FZ</p>
+      </section>
+    </div>
+
+    <!-- FOOTER  -->
+    <div id="footer_wrap" class="outer">
+      <footer class="inner">
+        <p class="copyright">Zappajs maintained by <a href="https://github.com/zappajs">zappajs</a></p>
+        <p>Published with <a href="http://pages.github.com">GitHub Pages</a></p>
+      </footer>
+    </div>
+
+    
+
+  </body>
+</html>
